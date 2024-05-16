@@ -1,10 +1,10 @@
 import express from 'express';
-import { uploadMedia } from '../controllers/media.controller';
+import { deleteMedia, uploadMedia } from '../controllers/media.controller';
 import { upload } from '../utils/multer';
-upload;
+import { authenticateUser } from '../middlewares/authenticate-user';
 
 const router = express.Router();
 
 router.post('/media', upload.single('file'), uploadMedia);
-
+router.delete('/media/:id', authenticateUser, deleteMedia);
 export default router;
