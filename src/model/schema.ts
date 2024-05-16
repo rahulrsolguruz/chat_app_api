@@ -1,5 +1,5 @@
-import { pgTable, pgEnum, text, timestamp, varchar, uuid, integer, boolean, json, jsonb } from 'drizzle-orm/pg-core';
-export const requestStatusEnum = pgEnum('request_status', ['pending', 'accepted', 'rejected']);
+import { pgTable, text, timestamp, varchar, uuid, integer, boolean } from 'drizzle-orm/pg-core';
+
 const base = {
   id: uuid('id').primaryKey().defaultRandom(),
   created_at: timestamp('created_at').defaultNow(),
@@ -9,53 +9,28 @@ const base = {
   updated_device_ip: varchar('updated_device_ip', { length: 256 }),
   deleted_device_ip: varchar('deleted_device_ip', { length: 256 })
 };
+
 export const users = pgTable('users', {
   ...base,
-  name: text('name').notNull(),
-  bio: text('bio').notNull(),
-  email: text('email').notNull().unique(),
+  username: varchar('username', { length: 256 }).notNull().unique(),
+  phone_number: varchar('phone_number', { length: 256 }).unique(),
+  email: varchar('email', { length: 256 }).unique(),
   password: text('password').notNull(),
-  avatar_public_id: text('avatar_public_id').notNull(),
-  avatar_url: text('avatar_url').notNull()
+  profile_picture_url: text('profile_picture_url'),
+  status_message: text('status_message'),
+  last_seen: timestamp('last_seen'),
+  is_online: boolean('is_online').notNull().default(false)
 });
+
 export const otp = pgTable('otp', {
   ...base,
   email: varchar('email').notNull(),
   otp: integer('otp').notNull()
 });
 
-export const requests = pgTable('requests', {
-  ...base,
-  status: requestStatusEnum('status'),
-  sender_id: uuid('sender_id').references(() => users.id, { onDelete: 'cascade' }),
-  receiver_id: uuid('receiver_id').references(() => users.id)
-});
-
-// // Define the attachments type
-// const attachmentType = json('attachments', {
-//   public_id: text('public_id').notNull(),
-//   url: text('url').notNull()
-// });
-
-export const messages = pgTable('messages', {
-  ...base,
-  content: text('content'),
-  attachments: json('attachments'),
-  sender_id: uuid('sender_id').references(() => users.id, { onDelete: 'cascade' }),
-  chat_id: uuid('chat_id').references(() => chats.id, { onDelete: 'cascade' })
-});
-export const chats = pgTable('chats', {
-  ...base,
-  name: text('name'),
-  group_chat: boolean('group_chat').notNull().default(false),
-  members: jsonb('members'),
-  creator_id: uuid('creator_id').references(() => users.id, { onDelete: 'cascade' })
-});
-// new design
 export const contacts = pgTable('contacts', {
   ...base,
   user_id: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
   contact_id: uuid('contact_id').references(() => users.id, { onDelete: 'cascade' })
 });
 export type iUser = typeof users.$inferInsert;
-export type iRequests = typeof requests.$inferInsert;
