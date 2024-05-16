@@ -51,7 +51,7 @@ export async function register(req: Request, res: Response) {
     }
     return response.successResponse(
       {
-        message: successMessage.REGISTER('User'),
+        message: successMessage.USER_REGISTERED,
         data: result
       },
       res
@@ -197,7 +197,7 @@ export async function profile(req: Request, res: Response) {
     if (!result) return response.failureResponse({ message: errorMessage.NOT_FOUND('User'), data: {} }, res);
     return response.successResponse(
       {
-        message: successMessage.FETCH('Account Profile'),
+        message: successMessage.FETCHED('Account Profile'),
         data: result
       },
       res
