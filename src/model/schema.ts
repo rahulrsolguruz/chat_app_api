@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, varchar, uuid, integer, boolean, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, varchar, uuid, integer, boolean, pgEnum, json } from 'drizzle-orm/pg-core';
 import ENUM from '../utils/enum';
 
 const base = {
@@ -73,5 +73,10 @@ export const media = pgTable('media', {
   file_url: varchar('file_url'),
   uploaded_at: timestamp('uploaded_at')
 });
-
+export const settings = pgTable('settings', {
+  ...base,
+  user_id: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  setting_name: varchar('setting_name'),
+  setting_values: json('setting_values')
+});
 export type iUser = typeof users.$inferInsert;
