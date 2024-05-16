@@ -65,7 +65,7 @@ export const errorMessage = {
   ORDER_ACCEPTED: 'Already a order accepted',
   NOT_FOUND: (resource: string) => `${resource} not found`,
   FAILD: (resource: string) => `${resource} Faild`,
-  EXIST: (resource: string) => `${resource} already sent`,
+  EXIST: (resource: string) => `${resource} already exist`,
   NOT_EXIST: (resource: string) => `${resource} not  exist`,
   ERROR: (resource: string) => ` Error during ${resource} `,
   INVALID: (resource: string) => ` Invalid ${resource} `,
