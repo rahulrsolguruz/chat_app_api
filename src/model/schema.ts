@@ -62,9 +62,16 @@ export const group_messages = pgTable('group_messages', {
   group_id: uuid('group_id').references(() => group_chats.id, { onDelete: 'cascade' }),
   message_content: text('message_content'),
   message_type: message_type_enum('message_type'),
-  media_url: varchar('role'),
+  media_url: varchar('media_url'),
   time_stamp: timestamp('time_stamp'),
   status: message_status_enum('status')
+});
+export const media = pgTable('media', {
+  ...base,
+  uploader_id: uuid('uploader_id').references(() => users.id, { onDelete: 'cascade' }),
+  file_type: varchar('file_type'),
+  file_url: varchar('file_url'),
+  uploaded_at: timestamp('uploaded_at')
 });
 
 export type iUser = typeof users.$inferInsert;
