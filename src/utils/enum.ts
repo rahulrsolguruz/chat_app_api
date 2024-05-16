@@ -14,7 +14,8 @@ const MessageType = {
 const MessageStatus = {
   SENT: 'sent',
   DELIVERED: 'delivered',
-  READ: 'read'
+  READ: 'read',
+  UNREAD: 'unread'
 };
 const RoleType = {
   MEMBER: 'member',

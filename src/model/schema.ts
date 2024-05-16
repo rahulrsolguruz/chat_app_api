@@ -16,9 +16,10 @@ export const message_type_enum = pgEnum('message_type', [
   ENUM.MessageType.EMOJI
 ]);
 export const message_status_enum = pgEnum('message_status', [
-  ENUM.MessageType.TEXT,
-  ENUM.MessageType.IMAGE,
-  ENUM.MessageType.EMOJI
+  ENUM.MessageStatus.SENT,
+  ENUM.MessageStatus.DELIVERED,
+  ENUM.MessageStatus.READ,
+  ENUM.MessageStatus.UNREAD
 ]);
 export const role_type_enum = pgEnum('role_type', [ENUM.RoleType.MEMBER, ENUM.RoleType.MEMBER]);
 export const users = pgTable('users', {
@@ -79,4 +80,14 @@ export const settings = pgTable('settings', {
   setting_name: varchar('setting_name'),
   setting_values: json('setting_values')
 });
+export const messages = pgTable('messages', {
+  ...base,
+  sender_id: uuid('sender_id').references(() => users.id, { onDelete: 'cascade' }),
+  receiver_id: uuid('receiver_id').references(() => users.id, { onDelete: 'cascade' }),
+  message_content: text('setting_name'),
+  message_type: message_type_enum('message_type'),
+  time_stamp: timestamp('time_stamp'),
+  status: message_status_enum('status')
+});
+
 export type iUser = typeof users.$inferInsert;
