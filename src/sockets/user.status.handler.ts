@@ -4,10 +4,7 @@ import { users } from '../model/schema';
 import ENUM from '../utils/enum';
 import { logger } from '../utils/logger';
 import { EVENTS } from './events';
-
-const sendResponse = (socket, event, success, message, data = {}) => {
-  socket.emit(event, { success, message, data });
-};
+import { ioResponse } from '../utils/common.functions';
 
 const updateUserStatus = async (user_id, status) => {
   await db.update(users).set({ status: status, last_seen: new Date() }).where(eq(users.id, user_id));
@@ -27,7 +24,7 @@ export const userStatusHandler = (socket) => {
           await updateUserStatus(user_id, ENUM.UserStatus.ONLINE);
           socket.broadcast.emit(EVENTS.USER.USER_ONLINE, { user_id });
         } catch (error) {
-          sendResponse(socket, EVENTS.USER.ONLINE_RESPONSE, false, 'Failed to update status');
+          ioResponse(socket, EVENTS.USER.ONLINE_RESPONSE, false, 'Failed to update status');
         }
       }
     });
@@ -40,7 +37,7 @@ export const userStatusHandler = (socket) => {
         await updateUserStatus(user_id, ENUM.UserStatus.OFFLINE);
         socket.broadcast.emit(EVENTS.USER.USER_OFFLINE, { user_id });
       } catch (error) {
-        sendResponse(socket, EVENTS.USER.OFFLINE_RESPONSE, false, 'Failed to update status');
+        ioResponse(socket, EVENTS.USER.OFFLINE_RESPONSE, false, 'Failed to update status');
       }
     }
   });
@@ -50,9 +47,9 @@ export const userStatusHandler = (socket) => {
     if (user_id) {
       try {
         await updateUserStatus(user_id, ENUM.UserStatus.OFFLINE);
-        sendResponse(socket, EVENTS.USER.LAST_SEEN_RESPONSE, true, 'Last seen updated successfully');
+        ioResponse(socket, EVENTS.USER.LAST_SEEN_RESPONSE, true, 'Last seen updated successfully');
       } catch (error) {
-        sendResponse(socket, EVENTS.USER.LAST_SEEN_RESPONSE, false, 'Failed to update last seen');
+        ioResponse(socket, EVENTS.USER.LAST_SEEN_RESPONSE, false, 'Failed to update last seen');
       }
     }
   });

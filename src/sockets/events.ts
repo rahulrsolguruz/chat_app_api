@@ -19,5 +19,19 @@ export const EVENTS = {
     STOP_TYPING: 'stopTyping',
     GET_MESSAGES: 'getMessages',
     GET_MESSAGES_RESPONSE: 'getMessagesResponse'
+  },
+  GROUP_CHAT: {
+    CREATE: 'createGroupChat',
+    UPDATE: 'updateGroupChat',
+    DELETE: 'deleteGroupChat',
+    ADD_MEMBER: 'addMemberToGroupChat',
+    REMOVE_MEMBER: 'removeMemberFromGroupChat',
+    SEND_MESSAGE: 'sendGroupMessage',
+    RECEIVE_MESSAGE: 'receiveGroupMessage',
+    GET_MEMBERS: 'getGroupChatMembers',
+    GET_MESSAGES: 'getGroupMessages',
+    MEMBER_ADDED: 'memberAdded',
+    MEMBER_REMOVED: 'memberRemoved',
+    MESSAGE_DELETED: 'messageDeleted'
   }
 };
