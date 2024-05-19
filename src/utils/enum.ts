@@ -21,11 +21,16 @@ const RoleType = {
   MEMBER: 'member',
   ADMIN: 'admin'
 };
+const UserStatus = {
+  ONLINE: 'online',
+  OFFLINE: 'offline'
+};
 const ENUM = {
   Status,
   MessageType,
   MessageStatus,
-  RoleType
+  RoleType,
+  UserStatus
 };
 
 export default ENUM;

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../config/db.config';
 import { successMessage, errorMessage } from '../config/constant.config';
-import { group_chat_members, group_chats, group_messages, message_type_enum, users } from '../model/schema'; // Assuming group schema is imported
+import { group_chat_members, group_chats, group_messages, message_type_enum, users } from '../model/schema';
 import response from '../utils/response';
 import { and, eq, like, or } from 'drizzle-orm';
 import ENUM from '../utils/enum';

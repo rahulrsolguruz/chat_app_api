@@ -61,7 +61,7 @@ export async function getMediaById(req: Request, res: Response) {
 export async function deleteMedia(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const user_id = req.user.id; // Assuming user_id is available from authentication middleware
+    const user_id = req.user.id;
 
     // Check if the media exists and if the authenticated user is the uploader
     const [mediaDetails] = await db

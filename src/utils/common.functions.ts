@@ -10,3 +10,6 @@ export const emitEvent = (req, event, users, data?) => {
   const usersSocket = getSockets(users);
   io.to(usersSocket).emit(event, data);
 };
+export const ioResponse = (socket, event, success, message, data = {}) => {
+  socket.emit(event, { success, message, data });
+};

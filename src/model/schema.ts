@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, varchar, uuid, integer, boolean, pgEnum, json } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, varchar, uuid, integer, pgEnum, json } from 'drizzle-orm/pg-core';
 import ENUM from '../utils/enum';
 
 const base = {
@@ -22,6 +22,7 @@ export const message_status_enum = pgEnum('message_status', [
   ENUM.MessageStatus.UNREAD
 ]);
 export const role_type_enum = pgEnum('role_type', [ENUM.RoleType.MEMBER, ENUM.RoleType.MEMBER]);
+export const user_status_enum = pgEnum('user_status', [ENUM.UserStatus.ONLINE, ENUM.UserStatus.OFFLINE]);
 export const users = pgTable('users', {
   ...base,
   username: varchar('username', { length: 256 }).notNull().unique(),
@@ -31,7 +32,7 @@ export const users = pgTable('users', {
   profile_picture_url: text('profile_picture_url'),
   status_message: text('status_message'),
   last_seen: timestamp('last_seen'),
-  is_online: boolean('is_online').notNull().default(false)
+  status: user_status_enum('status')
 });
 
 export const otp = pgTable('otp', {
@@ -84,7 +85,7 @@ export const messages = pgTable('messages', {
   ...base,
   sender_id: uuid('sender_id').references(() => users.id, { onDelete: 'cascade' }),
   receiver_id: uuid('receiver_id').references(() => users.id, { onDelete: 'cascade' }),
-  message_content: text('setting_name'),
+  message_content: text('message_content'),
   message_type: message_type_enum('message_type'),
   time_stamp: timestamp('time_stamp'),
   status: message_status_enum('status')

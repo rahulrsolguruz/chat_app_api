@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
 import db from '../config/db.config';
 import { successMessage, errorMessage } from '../config/constant.config';
-import { messages, message_status_enum } from '../model/schema'; // Assuming messages schema is imported
+import { messages, message_status_enum } from '../model/schema';
 import response from '../utils/response';
 import ENUM from '../utils/enum';
-import { eq } from 'lodash';
-
+import { eq } from 'drizzle-orm';
 export async function sendMessage(req: Request, res: Response) {
   try {
     const { receiver_id, message_content } = req.body;
@@ -29,12 +28,12 @@ export async function sendMessage(req: Request, res: Response) {
     if (!result) {
       return response.failureResponse({ message: errorMessage.SOMETHING_WENT_WRONG, data: {} }, res);
     }
-
     return response.successResponse({ message: successMessage.SENT('Message'), data: result }, res);
   } catch (error) {
     return response.failureResponse(error, res, 'message.controller', 'sendMessage');
   }
 }
+
 export async function getMessages(req: Request, res: Response) {
   try {
     const { sender_id, receiver_id } = req.params;

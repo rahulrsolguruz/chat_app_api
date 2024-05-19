@@ -15,6 +15,7 @@ import {
 import { staticTokenAuth, authenticateUser } from '../middlewares/authenticate-user';
 import { validation } from '../middlewares/validate';
 import { registerSchema, loginSchema } from '../model/validation.schema';
+import { seedUsers } from '../utils/seed.users';
 
 const router = express.Router();
 // auth start
@@ -26,5 +27,5 @@ router.post('/resetPassword/:token', staticTokenAuth, resetPassword);
 router.get('/profile', authenticateUser, profile);
 router.patch('/Profile', authenticateUser, updateProfile);
 router.get('/logout', authenticateUser, logout);
-
+router.post('/seed-users/:number', seedUsers);
 export default router;

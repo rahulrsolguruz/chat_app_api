@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../config/db.config';
 import { successMessage, errorMessage } from '../config/constant.config';
-import { settings } from '../model/schema'; // Assuming the settings schema is imported
+import { settings } from '../model/schema';
 import response from '../utils/response';
 import { eq } from 'drizzle-orm';
 
