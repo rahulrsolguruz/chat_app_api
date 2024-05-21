@@ -41,6 +41,12 @@ export const target_type_enum = pgEnum('target_type_enum', [
   ENUM.TargetType.MEDIA,
   ENUM.TargetType.SETTING
 ]);
+
+export const admins = pgTable('admins', {
+  ...base,
+  email: varchar('email', { length: 256 }).unique(),
+  password: text('password').notNull()
+});
 export const users = pgTable('users', {
   ...base,
   username: varchar('username', { length: 256 }).notNull().unique(),
