@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Socket } from 'socket.io';
-import { users } from '../model/schema';
+import { admins, users } from '../model/schema';
 import response from '../utils/response';
 import { errorMessage } from '../config/constant.config';
 import { env } from '../config/env.config';
@@ -77,5 +77,26 @@ export const socketAuthenticator = async (socket: Socket, next: (err?: Error) =>
   } catch (error) {
     console.error(error);
     return next(new Error('Please login to access this route'));
+  }
+};
+
+export const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = req.headers.authorization;
+    if (!token) {
+      response.validationError({ message: errorMessage.MISSING_TOKEN, data: {} }, res);
+    } else {
+      const verifyToken = token.split(' ')[1];
+
+      const decodedData = jwt.verify(verifyToken, env.SECRET_KEY as string) as { id: string };
+      const [admin] = await db.select().from(admins).where(eq(admins.id, decodedData.id));
+      if (!admin) {
+        return next(new Error('Please login to access this route'));
+      }
+
+      req.user = admin;
+    }
+  } catch (error) {
+    next(error);
   }
 };
