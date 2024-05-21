@@ -14,11 +14,14 @@ export const EVENTS = {
   MESSAGE: {
     SEND: 'send_message',
     DELIVERED: 'message_delivered',
+    READ: 'message_read',
     RECEIVE: 'receive_message',
     TYPING: 'typing',
     STOP_TYPING: 'stop_typing',
     GET_MESSAGES: 'get_messages',
-    GET_MESSAGES_RESPONSE: 'get_messages_response'
+    GET_MESSAGES_RESPONSE: 'get_messages_response',
+    REQUEST_HISTORY: 'request_history',
+    RECEIVE_HISTORY: 'receive_history'
   },
   GROUP_CHAT: {
     JOIN: 'join_group',

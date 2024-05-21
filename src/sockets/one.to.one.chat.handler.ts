@@ -1,3 +1,4 @@
+import { desc } from 'drizzle-orm';
 import db from '../config/db.config';
 import { messages, user_activity } from '../model/schema';
 import ENUM from '../utils/enum';
@@ -71,6 +72,39 @@ export const oneToOneChatHandler = async (socket) => {
       socket.emit('error', { message: 'Message sending failed', error });
     }
   });
+  // Handle message delivery receipt
+  socket.on(EVENTS.MESSAGE.DELIVERED, async (data) => {
+    const { message_id } = data;
+    try {
+      await db.update(messages).set({ status: ENUM.MessageStatus.DELIVERED }).where({ id: message_id });
+      socket.emit(EVENTS.MESSAGE.DELIVERED, { message_id });
+      logger.info(`Message with ID ${message_id} marked as delivered`);
+    } catch (error) {
+      logger.error(`Error marking message as delivered: ${error.message}`);
+    }
+  });
+  // Handle message delivery receipt
+  socket.on(EVENTS.MESSAGE.DELIVERED, async (data) => {
+    const { message_id } = data;
+    try {
+      await db.update(messages).set({ status: ENUM.MessageStatus.DELIVERED }).where({ id: message_id });
+      socket.emit(EVENTS.MESSAGE.DELIVERED, { message_id });
+      logger.info(`Message with ID ${message_id} marked as delivered`);
+    } catch (error) {
+      logger.error(`Error marking message as delivered: ${error.message}`);
+    }
+  });
+  // Handle message read receipt
+  socket.on(EVENTS.MESSAGE.READ, async (data) => {
+    const { message_id } = data;
+    try {
+      await db.update(messages).set({ status: ENUM.MessageStatus.READ }).where({ id: message_id });
+      socket.emit(EVENTS.MESSAGE.READ, { message_id });
+      logger.info(`Message with ID ${message_id} marked as read`);
+    } catch (error) {
+      logger.error(`Error marking message as read: ${error.message}`);
+    }
+  });
   // Handle typing indicator
   socket.on(EVENTS.MESSAGE.TYPING, (data) => {
     const { receiver_id } = data;
@@ -78,11 +112,28 @@ export const oneToOneChatHandler = async (socket) => {
     socket.to(receiver_id).emit(EVENTS.MESSAGE.TYPING, { sender_id });
     logger.info(`User is typing the receiver_id is :${receiver_id} and sender_id is ${sender_id} `);
   });
-
-  // Handle stop typing indicator
-  socket.on(EVENTS.MESSAGE.STOP_TYPING, (data) => {
-    const { receiver_id } = data;
+  // Handle request for older messages
+  socket.on(EVENTS.MESSAGE.REQUEST_HISTORY, async (data) => {
+    const MESSAGE_PAGE_SIZE = 20; // total messages per page
+    const { receiver_id, page } = data;
     const sender_id = socket.user?.id;
-    socket.to(receiver_id).emit(EVENTS.MESSAGE.STOP_TYPING, { sender_id });
+
+    try {
+      const offset = (page - 1) * MESSAGE_PAGE_SIZE;
+      const history = await db
+        .select('*')
+        .from(messages)
+        .where({ sender_id, receiver_id })
+        .orWhere({ sender_id: receiver_id, receiver_id: sender_id })
+        .orderBy(desc(messages.time_stamp))
+        .offset(offset)
+        .limit(MESSAGE_PAGE_SIZE);
+
+      socket.emit(EVENTS.MESSAGE.RECEIVE_HISTORY, { history });
+      logger.info(`Sent message history to user: ${sender_id}`);
+    } catch (error) {
+      logger.error(`Error fetching message history: ${error.message}`);
+      socket.emit('error', { message: 'Failed to fetch message history', error });
+    }
   });
 };
