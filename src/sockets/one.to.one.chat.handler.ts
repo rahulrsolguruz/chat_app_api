@@ -8,6 +8,7 @@ export const oneToOneChatHandler = async (socket) => {
   const user_id = socket.user?.id;
   await db.insert(user_activity).values({
     user_id: user_id,
+    target_id: user_id,
     activity_type: ENUM.ActivityType.USER_CONNECTED
   });
 
@@ -23,18 +24,6 @@ export const oneToOneChatHandler = async (socket) => {
   }
 
   socket.on(EVENTS.MESSAGE.SEND, async (data) => {
-    logger.info(`Raw incoming data: ${JSON.stringify(data)}`);
-
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        logger.error(`Error parsing JSON: ${error.message}`);
-        socket.emit('error', { message: 'Invalid JSON format' });
-        return;
-      }
-    }
-
     const { receiver_id, message_content } = data;
     const sender_id = socket.user?.id;
 
@@ -84,16 +73,6 @@ export const oneToOneChatHandler = async (socket) => {
   });
   // Handle typing indicator
   socket.on(EVENTS.MESSAGE.TYPING, (data) => {
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        logger.error(`Error parsing JSON: ${error.message}`);
-        socket.emit('error', { message: 'Invalid JSON format' });
-        return;
-      }
-    }
-
     const { receiver_id } = data;
     const sender_id = socket.user?.id;
     socket.to(receiver_id).emit(EVENTS.MESSAGE.TYPING, { sender_id });
@@ -102,16 +81,6 @@ export const oneToOneChatHandler = async (socket) => {
 
   // Handle stop typing indicator
   socket.on(EVENTS.MESSAGE.STOP_TYPING, (data) => {
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        logger.error(`Error parsing JSON: ${error.message}`);
-        socket.emit('error', { message: 'Invalid JSON format' });
-        return;
-      }
-    }
-
     const { receiver_id } = data;
     const sender_id = socket.user?.id;
     socket.to(receiver_id).emit(EVENTS.MESSAGE.STOP_TYPING, { sender_id });

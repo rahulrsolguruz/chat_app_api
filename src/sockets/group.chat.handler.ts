@@ -1,6 +1,6 @@
 import { and, eq, or } from 'drizzle-orm';
 import db from '../config/db.config';
-import { group_chat_members, group_chats, group_messages, role_type_enum } from '../model/schema';
+import { group_chat_members, group_chats, group_messages, role_type_enum, user_activity } from '../model/schema';
 import ENUM from '../utils/enum';
 import { logger } from '../utils/logger';
 import { EVENTS } from './events';
@@ -9,18 +9,21 @@ import { errorMessage, successMessage } from '../config/constant.config';
 
 export const groupChatHandler = (socket, io) => {
   const user_id = socket.user?.id;
-
+  // Function to log user activity
+  const logUserActivity = async (activityType, targetId, targetType) => {
+    try {
+      await db.insert(user_activity).values({
+        user_id: user_id,
+        activity_type: activityType,
+        target_id: targetId,
+        target_type: targetType
+      });
+    } catch (error) {
+      logger.error(`Error logging user activity: ${error.message}`);
+    }
+  };
   // Create group chat
   socket.on(EVENTS.GROUP_CHAT.CREATED, async (data) => {
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        logger.error(`Error parsing JSON: ${error.message}`);
-        socket.emit('error', { message: 'Invalid JSON format' });
-        return;
-      }
-    }
     const { group_name, group_picture_url } = data;
 
     try {
@@ -41,7 +44,7 @@ export const groupChatHandler = (socket, io) => {
         role: role_type_enum.enumValues[0]
       };
       await db.insert(group_chat_members).values(newGroupChatMembers).returning();
-
+      await logUserActivity(ENUM.ActivityType.USER_CREATED_GROUP, result.id, ENUM.TargetType.GROUP);
       if (!result) {
         return ioResponse(socket, EVENTS.GROUP_CHAT.CREATED, false, errorMessage.SOMETHING_WENT_WRONG);
       }
@@ -55,15 +58,6 @@ export const groupChatHandler = (socket, io) => {
 
   // Update group chat
   socket.on(EVENTS.GROUP_CHAT.UPDATED, async (data) => {
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        logger.error(`Error parsing JSON: ${error.message}`);
-        socket.emit('error', { message: 'Invalid JSON format' });
-        return;
-      }
-    }
     const { group_id, newGroupName, newGroupPictureUrl } = data;
 
     try {
@@ -89,7 +83,7 @@ export const groupChatHandler = (socket, io) => {
       if (!updatedGroup) {
         return ioResponse(socket, EVENTS.GROUP_CHAT.UPDATED, false, errorMessage.SOMETHING_WENT_WRONG);
       }
-
+      await logUserActivity(ENUM.ActivityType.USER_UPDATED_GROUP, updatedGroup.id, ENUM.TargetType.GROUP);
       socket.emit(EVENTS.GROUP_CHAT.UPDATED, updatedGroup);
     } catch (error) {
       socket.emit(EVENTS.GROUP_CHAT.UPDATED, { success: false, message: 'Failed to update group chat' });
@@ -99,15 +93,6 @@ export const groupChatHandler = (socket, io) => {
   // Delete group chat
   socket.on(EVENTS.GROUP_CHAT.DELETED, async (data) => {
     try {
-      if (typeof data === 'string') {
-        try {
-          data = JSON.parse(data);
-        } catch (error) {
-          logger.error(`Error parsing JSON: ${error.message}`);
-          socket.emit('error', { message: 'Invalid JSON format' });
-          return;
-        }
-      }
       const { group_id } = data;
       const [group] = await db
         .select()
@@ -127,7 +112,7 @@ export const groupChatHandler = (socket, io) => {
       if (!deleteCount) {
         return ioResponse(socket, EVENTS.GROUP_CHAT.DELETED, false, errorMessage.SOMETHING_WENT_WRONG);
       }
-
+      await logUserActivity(ENUM.ActivityType.USER_DELETED_GROUP, deleteCount.id, ENUM.TargetType.GROUP);
       socket.emit(EVENTS.GROUP_CHAT.DELETED, { group_id });
     } catch (error) {
       console.log(error);
@@ -137,15 +122,6 @@ export const groupChatHandler = (socket, io) => {
 
   socket.on(EVENTS.GROUP_CHAT.JOIN, async (data) => {
     const user_id = socket.user?.id;
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        console.error(`Error parsing JSON: ${error.message}`);
-        socket.emit('error', { message: 'Invalid JSON format' });
-        return;
-      }
-    }
     const { group_id } = data;
     try {
       const [isMember] = await db
@@ -155,6 +131,7 @@ export const groupChatHandler = (socket, io) => {
 
       if (isMember) {
         socket.join(group_id);
+        await logUserActivity(ENUM.ActivityType.USER_JOINED_GROUP, group_id, ENUM.TargetType.GROUP);
         console.log(`${user_id} joined group ${group_id}`);
       } else {
         socket.emit('error', { message: 'Unauthorized access to group chat' });
@@ -184,19 +161,10 @@ export const groupChatHandler = (socket, io) => {
   socket.on(EVENTS.GROUP_CHAT.MESSAGE_DELETED, async (data) => {
     handleDeleteMessage(socket, data);
   });
+
   // Add member to group chat
   async function handleAddMember(socket, data) {
     const user_id = socket.user?.id;
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        console.error(`Error parsing JSON: ${error.message}`);
-        socket.emit('error', { message: 'Invalid JSON format' });
-        return;
-      }
-    }
-
     const { group_id, member_id } = data;
 
     try {
@@ -218,8 +186,10 @@ export const groupChatHandler = (socket, io) => {
         return ioResponse(socket, EVENTS.GROUP_CHAT.ADD_MEMBER, false, errorMessage.EXIST('Member'));
       }
 
-      await db.insert(group_chat_members).values({ user_id: member_id, group_id, role: ENUM.RoleType.MEMBER });
-
+      await db
+        .insert(group_chat_members)
+        .values({ user_id: member_id, group_id, joined_at: new Date(), role: ENUM.RoleType.MEMBER });
+      await logUserActivity(ENUM.ActivityType.MEMBER_ADDED_IN_GROUP, group_id, ENUM.TargetType.GROUP);
       socket.to(group_id).emit(EVENTS.GROUP_CHAT.MEMBER_ADDED, { member_id });
       ioResponse(socket, EVENTS.GROUP_CHAT.ADD_MEMBER, true, successMessage.ADDED('Member'));
     } catch (error) {
@@ -230,16 +200,6 @@ export const groupChatHandler = (socket, io) => {
   // Remove member from group chat
   async function handleRemoveMember(socket, data) {
     const user_id = socket.user?.id;
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        console.error(`Error parsing JSON: ${error.message}`);
-        socket.emit('error', { message: 'Invalid JSON format' });
-        return;
-      }
-    }
-
     const { group_id, member_id } = data;
 
     try {
@@ -269,7 +229,7 @@ export const groupChatHandler = (socket, io) => {
       if (!deleteCount) {
         return ioResponse(socket, EVENTS.GROUP_CHAT.REMOVE_MEMBER, false, errorMessage.SOMETHING_WENT_WRONG);
       }
-
+      await logUserActivity(ENUM.ActivityType.MEMBER_REMOVED_IN_GROUP, group_id, ENUM.TargetType.GROUP);
       socket.to(group_id).emit(EVENTS.GROUP_CHAT.MEMBER_REMOVED, { member_id });
       ioResponse(socket, EVENTS.GROUP_CHAT.REMOVE_MEMBER, true, successMessage.REMOVED('Member'));
     } catch (error) {
@@ -281,16 +241,6 @@ export const groupChatHandler = (socket, io) => {
   // Send message to group chat
   async function handleSendMessage(socket, data) {
     const user_id = socket.user?.id;
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        console.error(`Error parsing JSON: ${error.message}`);
-        socket.emit('error', { message: 'Invalid JSON format' });
-        return;
-      }
-    }
-
     const { group_id, message_content, message_type, media_url } = data;
 
     try {
@@ -325,8 +275,7 @@ export const groupChatHandler = (socket, io) => {
       if (!result) {
         return ioResponse(socket, EVENTS.GROUP_CHAT.SEND_MESSAGE, false, errorMessage.SOMETHING_WENT_WRONG);
       }
-
-      // Emit the message to the entire group
+      await logUserActivity(ENUM.ActivityType.MEMBER_SEND_MESSAGE_IN_GROUP, group_id, ENUM.TargetType.GROUP);
       io.to(group_id).emit(EVENTS.GROUP_CHAT.RECEIVE_MESSAGE, result);
       ioResponse(socket, EVENTS.GROUP_CHAT.SEND_MESSAGE, true, successMessage.ADDED('Message'), result);
     } catch (error) {
@@ -363,7 +312,7 @@ export const groupChatHandler = (socket, io) => {
       if (!deleteCount) {
         return ioResponse(socket, EVENTS.GROUP_CHAT.MESSAGE_DELETED, false, errorMessage.SOMETHING_WENT_WRONG);
       }
-
+      await logUserActivity(ENUM.ActivityType.MEMBER_DELETED_MESSAGE_IN_GROUP, group_id, ENUM.TargetType.GROUP);
       socket.to(group_id).emit(EVENTS.GROUP_CHAT.MESSAGE_DELETED, { message_id });
       ioResponse(socket, EVENTS.GROUP_CHAT.MESSAGE_DELETED, true, successMessage.DELETED('Message'));
     } catch (error) {
