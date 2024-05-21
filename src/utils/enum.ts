@@ -28,6 +28,7 @@ enum UserStatus {
   UNBANNED = 'unbanned'
 }
 enum ActivityType {
+  ADMIN_CONNECTED = 'admin_connected',
   USER_CREATED = 'user_created',
   USER_UPDATED = 'user_updated',
   USER_DELETED = 'user_deleted',

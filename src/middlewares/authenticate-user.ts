@@ -11,11 +11,13 @@ import { eq } from 'drizzle-orm';
 declare module 'express-serve-static-core' {
   interface Request {
     user: { id: string; email: string; name: string; user_id: string };
+    admin: { id: string; email: string; name: string; role: string };
   }
 }
 declare module 'socket.io' {
   interface Socket {
     user: { id: string; email: string; name: string; user_id: string };
+    admin: { id: string; email: string; name: string; role: string };
   }
 }
 export const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
@@ -66,14 +68,23 @@ export const socketAuthenticator = async (socket: Socket, next: (err?: Error) =>
       return next(new Error('Please login to access this route'));
     }
 
-    const decodedData = jwt.verify(token, env.SECRET_KEY as string) as { id: string };
-    const [user] = await db.select().from(users).where(eq(users.id, decodedData.id));
-    if (!user) {
-      return next(new Error('Please login to access this route'));
-    }
+    const decodedData = jwt.verify(token, env.SECRET_KEY as string) as { id: string; role: string };
+    if (decodedData.role === 'admin') {
+      const [admin] = await db.select().from(admins).where(eq(admins.id, decodedData.id));
+      if (!admin) {
+        return next(new Error('Please login to access this route'));
+      }
+      socket.admin = admin;
+      next();
+    } else {
+      const [user] = await db.select().from(users).where(eq(users.id, decodedData.id));
+      if (!user) {
+        return next(new Error('Please login to access this route'));
+      }
 
-    socket.user = user;
-    next();
+      socket.user = user;
+      next();
+    }
   } catch (error) {
     console.error(error);
     return next(new Error('Please login to access this route'));
@@ -88,13 +99,17 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
     } else {
       const verifyToken = token.split(' ')[1];
 
-      const decodedData = jwt.verify(verifyToken, env.SECRET_KEY as string) as { id: string; role: string };
+      const decodedData = jwt.verify(verifyToken, env.SECRET_KEY as string) as {
+        id: string;
+        email: string;
+        role: string;
+      };
       const [admin] = await db.select().from(admins).where(eq(admins.id, decodedData.id));
       if (!admin) {
         return next(new Error('Please login to access this route'));
       }
 
-      req.user = admin;
+      req.admin = admin;
       next();
     }
   } catch (error) {

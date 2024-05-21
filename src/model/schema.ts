@@ -141,12 +141,11 @@ export const reported_messages = pgTable('reported_messages', {
 });
 export const user_activity = pgTable('user_activity', {
   id: uuid('id').primaryKey().defaultRandom(),
-  user_id: uuid('user_id')
-    .references(() => users.id, { onDelete: 'cascade' })
-    .notNull(),
-  activity_type: activity_type_enum('activity_type').notNull(),
+  user_id: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  admin_id: uuid('admin_id').references(() => admins.id, { onDelete: 'cascade' }),
+  activity_type: varchar('activity_type'),
   target_id: uuid('target_id'),
-  target_type: target_type_enum('target_type'),
+  target_type: varchar('target_type'),
   additional_data: json('additional_data'),
   time_stamp: timestamp('time_stamp').defaultNow()
 });

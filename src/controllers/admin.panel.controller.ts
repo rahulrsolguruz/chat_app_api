@@ -1,14 +1,57 @@
 import { Request, Response } from 'express';
 import db from '../config/db.config';
-import { users, group_chats, group_chat_members, reported_messages, messages } from '../model/schema';
-import { count, isNull, asc, eq, desc } from 'drizzle-orm';
+import { users, group_chats, group_chat_members, reported_messages, messages, admins } from '../model/schema';
+import { count, isNull, asc, eq, desc, and } from 'drizzle-orm';
 import response from '../utils/response';
-import { successMessage } from '../config/constant.config';
+import { errorMessage, successMessage } from '../config/constant.config';
 import ENUM from '../utils/enum';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { env } from '../config/env.config';
+// auth
+export async function login(req: Request, res: Response) {
+  try {
+    const { email, password } = req.body;
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
+    const passwordMatch = await bcrypt.compare(password, existingObj.password);
+    if (!passwordMatch) {
+      return response.failureResponse({ message: errorMessage.INVALID_CREDENTIALS, data: {} }, res);
+    }
+    const [result] = await db
+      .select({
+        id: admins.id,
+        email: admins.email,
+        role: admins.role,
+        created_at: admins.created_at
+      })
+      .from(admins)
+      .where(eq(admins.email, existingObj.email));
+    const token = jwt.sign({ id: result.id, email: result.email, role: result.role }, env.SECRET_KEY);
 
+    return response.successResponse(
+      {
+        message: successMessage.LOGIN('Admin'),
+        data: { ...result, token: token }
+      },
+      res
+    );
+  } catch (error) {
+    return response.failureResponse(error, res, 'admin.panel.controller', 'login');
+  }
+}
 // User Management
 export async function getAllUsers(req: Request, res: Response) {
   try {
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const limit = parseInt(req.query.limit as string, 10) || 10;
     const offset = parseInt(req.query.offset as string, 10) || 0;
 
@@ -50,7 +93,13 @@ export async function getAllUsers(req: Request, res: Response) {
 export async function getUserDetails(req: Request, res: Response) {
   try {
     const userId = req.params.userId;
-
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const user = await db
       .select({
         id: users.id,
@@ -89,7 +138,13 @@ export async function getUserDetails(req: Request, res: Response) {
 export async function deleteUser(req: Request, res: Response) {
   try {
     const userId = req.params.userId;
-
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const existingUser = await db
       .select({ id: users.id })
       .from(users)
@@ -120,7 +175,13 @@ export async function deleteUser(req: Request, res: Response) {
 export async function banUser(req: Request, res: Response) {
   try {
     const userId = req.params.userId;
-
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     // Check if the user exists and is not already banned
     const [existingUser] = await db
       .select({
@@ -162,7 +223,13 @@ export async function banUser(req: Request, res: Response) {
 export async function unBanUser(req: Request, res: Response) {
   try {
     const userId = req.params.userId;
-
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     // Check if the user exists and is not already banned
     const [existingUser] = await db
       .select({
@@ -204,6 +271,13 @@ export async function unBanUser(req: Request, res: Response) {
 // Group Management
 export async function getAllGroups(req: Request, res: Response) {
   try {
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const limit = parseInt(req.query.limit as string, 10) || 10;
     const offset = parseInt(req.query.offset as string, 10) || 0;
 
@@ -240,8 +314,15 @@ export async function getAllGroups(req: Request, res: Response) {
 }
 export async function getGroupDetails(req: Request, res: Response) {
   try {
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const groupId = req.params.groupId;
-
+    console.log(groupId);
     const [group] = await db
       .select({
         id: group_chats.id,
@@ -251,30 +332,35 @@ export async function getGroupDetails(req: Request, res: Response) {
         updated_at: group_chats.updated_at
       })
       .from(group_chats)
-      .where(eq(group_chats.id, groupId))
-      .andWhere(isNull(group_chats.deleted_at))
-      .limit(1);
+      .where(and(eq(group_chats.id, groupId), isNull(group_chats.deleted_at)));
 
-    if (group) {
+    if (!group) {
       return res.status(404).json({
         success: false,
         message: 'Group not found'
       });
     }
 
-    const responseData = {
-      success: true,
-      message: 'Group details fetched successfully',
-      data: group
-    };
-
-    return response.successResponse(responseData, res);
+    return response.successResponse(
+      {
+        message: successMessage.FETCHED('Group details'),
+        data: group
+      },
+      res
+    );
   } catch (error) {
     return response.failureResponse(error, res, 'admin.controller', 'getGroupDetails');
   }
 }
 export async function updateGroupDetails(req: Request, res: Response) {
   try {
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const groupId = req.params.groupId;
     const { group_name, group_picture_url } = req.body;
 
@@ -284,11 +370,9 @@ export async function updateGroupDetails(req: Request, res: Response) {
         id: group_chats.id
       })
       .from(group_chats)
-      .where(eq(group_chats.id, groupId))
-      .andWhere(isNull(group_chats.deleted_at))
-      .limit(1);
+      .where(and(eq(group_chats.id, groupId), isNull(group_chats.deleted_at)));
 
-    if (existingGroup) {
+    if (!existingGroup) {
       return res.status(404).json({
         success: false,
         message: 'Group not found'
@@ -318,6 +402,13 @@ export async function updateGroupDetails(req: Request, res: Response) {
 }
 export async function deleteGroup(req: Request, res: Response) {
   try {
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const groupId = req.params.groupId;
 
     // Check if the group exists
@@ -521,6 +612,13 @@ export async function addReportedMessage(req: Request, res: Response) {
 
 export async function getReportedMessages(req: Request, res: Response) {
   try {
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const reportedMessages = await db
       .select({
         reported_message_id: reported_messages.id,
@@ -551,6 +649,13 @@ export async function getReportedMessages(req: Request, res: Response) {
 }
 export async function deleteReportedMessage(req: Request, res: Response) {
   try {
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const { messageId } = req.params;
 
     // Validate if the messageId is provided
@@ -596,6 +701,13 @@ export async function deleteReportedMessage(req: Request, res: Response) {
 }
 export async function flagMessageAsInappropriate(req: Request, res: Response) {
   try {
+    const email = req.admin.email;
+    console.log(email);
+    if (!email) return response.unAuthorizedRequest(res);
+    const [existingObj] = await db.select().from(admins).where(eq(admins.email, email));
+    if (!existingObj) {
+      return response.unAuthorizedRequest(res);
+    }
     const { messageId } = req.params;
     const { reportedBy, reason } = req.body;
 

@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { faker } from '@faker-js/faker';
 import db from '../config/db.config';
-import { users } from '../model/schema';
+import { users, admins } from '../model/schema';
 import bcrypt from 'bcrypt';
+import { io } from '..';
+import { EVENTS } from '../sockets/events';
 
 export async function seedUsers(req: Request, res: Response) {
   const numberOfUsers = parseInt(req.params.number, 10) || 10;
@@ -23,8 +25,8 @@ export async function seedUsers(req: Request, res: Response) {
 
   try {
     const usersData = await Promise.all(userPromises);
-    await db.insert(users).values(usersData);
-
+    const [result] = await db.insert(users).values(usersData).returning();
+    io.emit(EVENTS.ADMIN.USER_CREATED, result);
     return res.status(201).json({
       message: 'Users seeded successfully',
       data: {}
@@ -32,6 +34,34 @@ export async function seedUsers(req: Request, res: Response) {
   } catch (error) {
     return res.status(500).json({
       message: 'Error seeding users',
+      error: error.message
+    });
+  }
+}
+
+export async function seedAdmins(req: Request, res: Response) {
+  const numberOfAdmins = parseInt(req.params.number, 10) || 5;
+
+  const adminPromises = Array.from({ length: numberOfAdmins }).map(async () => {
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    return {
+      email: faker.internet.email(),
+      password: hashedPassword,
+      role: 'admin'
+    };
+  });
+
+  try {
+    const adminsData = await Promise.all(adminPromises);
+    await db.insert(admins).values(adminsData);
+
+    return res.status(201).json({
+      message: 'Admins seeded successfully',
+      data: {}
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error seeding admins',
       error: error.message
     });
   }
