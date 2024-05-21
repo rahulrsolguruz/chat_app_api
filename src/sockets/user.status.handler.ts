@@ -23,6 +23,7 @@ export const userStatusHandler = (socket) => {
         try {
           await updateUserStatus(user_id, ENUM.UserStatus.ONLINE);
           socket.broadcast.emit(EVENTS.USER.USER_ONLINE, { user_id });
+          console.log('its working');
         } catch (error) {
           ioResponse(socket, EVENTS.USER.ONLINE_RESPONSE, false, 'Failed to update status');
         }

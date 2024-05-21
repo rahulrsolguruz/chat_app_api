@@ -10,19 +10,37 @@ const base = {
   updated_device_ip: varchar('updated_device_ip', { length: 256 }),
   deleted_device_ip: varchar('deleted_device_ip', { length: 256 })
 };
-export const message_type_enum = pgEnum('message_type', [
+export const message_type_enum = pgEnum('message_type_enum', [
   ENUM.MessageType.TEXT,
   ENUM.MessageType.IMAGE,
   ENUM.MessageType.EMOJI
 ]);
-export const message_status_enum = pgEnum('message_status', [
+export const message_status_enum = pgEnum('message_status_enum', [
   ENUM.MessageStatus.SENT,
   ENUM.MessageStatus.DELIVERED,
   ENUM.MessageStatus.READ,
   ENUM.MessageStatus.UNREAD
 ]);
-export const role_type_enum = pgEnum('role_type', [ENUM.RoleType.MEMBER, ENUM.RoleType.MEMBER]);
-export const user_status_enum = pgEnum('user_status', [ENUM.UserStatus.ONLINE, ENUM.UserStatus.OFFLINE]);
+
+export const role_type_enum = pgEnum('role_type_enum', [ENUM.RoleType.ADMIN, ENUM.RoleType.MEMBER]);
+export const user_status_enum = pgEnum('user_status_enum', [ENUM.UserStatus.ONLINE, ENUM.UserStatus.OFFLINE]);
+export const activity_type_enum = pgEnum('activity_type_enum', [
+  ENUM.ActivityType.USER_CONNECTED,
+  ENUM.ActivityType.USER_DISCONNECTED,
+  ENUM.ActivityType.USER_JOINED_GROUP,
+  ENUM.ActivityType.USER_LEFT_GROUP,
+  ENUM.ActivityType.USER_SENT_MESSAGE,
+  ENUM.ActivityType.USER_DELETED_MESSAGE,
+  ENUM.ActivityType.USER_ADDED_CONTACT,
+  ENUM.ActivityType.USER_REMOVED_CONTACT
+]);
+export const target_type_enum = pgEnum('target_type_enum', [
+  ENUM.TargetType.USER,
+  ENUM.TargetType.GROUP,
+  ENUM.TargetType.MESSAGE,
+  ENUM.TargetType.MEDIA,
+  ENUM.TargetType.SETTING
+]);
 export const users = pgTable('users', {
   ...base,
   username: varchar('username', { length: 256 }).notNull().unique(),
@@ -55,6 +73,7 @@ export const group_chats = pgTable('group_chats', {
 export const group_chat_members = pgTable('group_chat_members', {
   ...base,
   user_id: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  group_id: uuid('group_id').references(() => group_chats.id, { onDelete: 'cascade' }),
   joined_at: timestamp('joined_at'),
   role: role_type_enum('role')
 });
@@ -89,6 +108,18 @@ export const messages = pgTable('messages', {
   message_type: message_type_enum('message_type'),
   time_stamp: timestamp('time_stamp'),
   status: message_status_enum('status')
+});
+
+export const user_activity = pgTable('user_activity', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  user_id: uuid('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  activity_type: activity_type_enum('activity_type').notNull(),
+  target_id: uuid('target_id'),
+  target_type: target_type_enum('target_type'),
+  additional_data: json('additional_data'),
+  time_stamp: timestamp('time_stamp').defaultNow()
 });
 
 export type iUser = typeof users.$inferInsert;

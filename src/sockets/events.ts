@@ -5,33 +5,34 @@ export const EVENTS = {
     ONLINE: 'online',
     OFFLINE: 'offline',
     LAST_SEEN: 'last_seen',
-    USER_ONLINE: 'userOnline',
-    USER_OFFLINE: 'userOffline',
-    LAST_SEEN_RESPONSE: 'lastSeenResponse',
-    ONLINE_RESPONSE: 'onlineResponse',
-    OFFLINE_RESPONSE: 'offlineResponse'
+    USER_ONLINE: 'user_online',
+    USER_OFFLINE: 'user_offline',
+    LAST_SEEN_RESPONSE: 'last_seen_response',
+    ONLINE_RESPONSE: 'online_response',
+    OFFLINE_RESPONSE: 'offline_response'
   },
   MESSAGE: {
-    SEND: 'sendMessage',
-    DELIVERED: 'messageDelivered',
-    RECEIVE: 'receiveMessage',
+    SEND: 'send_message',
+    DELIVERED: 'message_delivered',
+    RECEIVE: 'receive_message',
     TYPING: 'typing',
-    STOP_TYPING: 'stopTyping',
-    GET_MESSAGES: 'getMessages',
-    GET_MESSAGES_RESPONSE: 'getMessagesResponse'
+    STOP_TYPING: 'stop_typing',
+    GET_MESSAGES: 'get_messages',
+    GET_MESSAGES_RESPONSE: 'get_messages_response'
   },
   GROUP_CHAT: {
-    CREATE: 'createGroupChat',
-    UPDATE: 'updateGroupChat',
-    DELETE: 'deleteGroupChat',
-    ADD_MEMBER: 'addMemberToGroupChat',
-    REMOVE_MEMBER: 'removeMemberFromGroupChat',
-    SEND_MESSAGE: 'sendGroupMessage',
-    RECEIVE_MESSAGE: 'receiveGroupMessage',
-    GET_MEMBERS: 'getGroupChatMembers',
-    GET_MESSAGES: 'getGroupMessages',
-    MEMBER_ADDED: 'memberAdded',
-    MEMBER_REMOVED: 'memberRemoved',
-    MESSAGE_DELETED: 'messageDeleted'
+    JOIN: 'join_group',
+    CREATED: 'create_group_chat',
+    UPDATED: 'update_group_chat',
+    DELETED: 'delete_group_chat',
+    ADD_MEMBER: 'add_member_to_group_chat',
+    REMOVE_MEMBER: 'remove_member_from_group_chat',
+    SEND_MESSAGE: 'send_group_message',
+    RECEIVE_MESSAGE: 'receive_group_message',
+    GET_MEMBERS: 'get_group_chat_members',
+    GET_MESSAGES: 'get_group_messages',
+    MEMBER_ADDED: 'member_added',
+    MEMBER_REMOVED: 'member_removed',
+    MESSAGE_DELETED: 'message_deleted'
   }
 };

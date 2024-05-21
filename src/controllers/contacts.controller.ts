@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../config/db.config';
 import { successMessage, errorMessage } from '../config/constant.config';
-import { contacts, users } from '../model/schema'; // Assuming contacts schema is imported
+import { contacts, users } from '../model/schema';
 import response from '../utils/response';
 import { and, eq, isNull, like, or } from 'drizzle-orm';
 

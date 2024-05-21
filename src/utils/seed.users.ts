@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { faker } from '@faker-js/faker';
 import db from '../config/db.config';
-import { users } from '../model/schema'; // Ensure this points to your actual schema file
+import { users } from '../model/schema';
 import bcrypt from 'bcrypt';
 
 export async function seedUsers(req: Request, res: Response) {
-  const numberOfUsers = parseInt(req.params.number, 10) || 10; // Default to 10 if no number is provided
+  const numberOfUsers = parseInt(req.params.number, 10) || 10;
 
   const userPromises = Array.from({ length: numberOfUsers }).map(async () => {
     const hashedPassword = await bcrypt.hash('pass123', 10);
@@ -17,7 +17,7 @@ export async function seedUsers(req: Request, res: Response) {
       profile_picture_url: faker.image.avatar(),
       status_message: faker.lorem.sentence(),
       last_seen: faker.date.recent(),
-      is_online: faker.datatype.boolean()
+      status: 'offline'
     };
   });
 
