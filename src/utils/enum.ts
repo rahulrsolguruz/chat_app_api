@@ -23,7 +23,9 @@ enum RoleType {
 }
 enum UserStatus {
   ONLINE = 'online',
-  OFFLINE = 'offline'
+  OFFLINE = 'offline',
+  BANNED = 'banned',
+  UNBANNED = 'unbanned'
 }
 enum ActivityType {
   USER_CONNECTED = 'user_connected',
@@ -49,6 +51,19 @@ enum TargetType {
   MEDIA = 'media',
   SETTING = 'setting'
 }
+enum messagesStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  PENDING = 'pending',
+  UNDER_REVIEW = 'under_review',
+  RESOLVED = 'resolved',
+  DISMISSED = 'dismissed',
+  ESCALATED = 'escalated',
+  ACTION_TAKEN = 'action_taken',
+  USER_NOTIFIED = 'user_notified',
+  AWAITING_RESPONSE = 'awaiting_response',
+  CLOSED = 'closed'
+}
 const ENUM = {
   Status,
   MessageType,
@@ -56,7 +71,8 @@ const ENUM = {
   RoleType,
   UserStatus,
   ActivityType,
-  TargetType
+  TargetType,
+  messagesStatus
 };
 
 export default ENUM;

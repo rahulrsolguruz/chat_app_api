@@ -7,6 +7,7 @@ export const successMessage = {
   RESET_PASSWORD_LINK_SENT: 'Password Reset Link Send successfully',
   RESET_PASSWORD_SUCCESS: 'Password Reset  successfully',
   OTP_SEND: 'Otp Send successfully',
+  ALL_FETCH: (resource: string) => `All ${resource}  fetched successfully`,
   UPLOADED: (resource) => `${resource} uploaded successfully`,
   SENT: (resource) => `${resource} sent successfully`,
   DELIVERED: (resource) => `${resource} delivered successfully`,

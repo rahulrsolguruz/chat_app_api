@@ -23,7 +23,11 @@ export const message_status_enum = pgEnum('message_status_enum', [
 ]);
 
 export const role_type_enum = pgEnum('role_type_enum', [ENUM.RoleType.ADMIN, ENUM.RoleType.MEMBER]);
-export const user_status_enum = pgEnum('user_status_enum', [ENUM.UserStatus.ONLINE, ENUM.UserStatus.OFFLINE]);
+export const user_status_enum = pgEnum('user_status_enum', [
+  ENUM.UserStatus.ONLINE,
+  ENUM.UserStatus.OFFLINE,
+  ENUM.UserStatus.BANNED
+]);
 export const activity_type_enum = pgEnum('activity_type_enum', [
   ENUM.ActivityType.USER_CONNECTED,
   ENUM.ActivityType.USER_DISCONNECTED,
@@ -41,7 +45,19 @@ export const target_type_enum = pgEnum('target_type_enum', [
   ENUM.TargetType.MEDIA,
   ENUM.TargetType.SETTING
 ]);
-
+export const flag_status_enum = pgEnum('flag_status_enum', [
+  ENUM.messagesStatus.ACTIVE,
+  ENUM.messagesStatus.INACTIVE,
+  ENUM.messagesStatus.PENDING,
+  ENUM.messagesStatus.UNDER_REVIEW,
+  ENUM.messagesStatus.RESOLVED,
+  ENUM.messagesStatus.DISMISSED,
+  ENUM.messagesStatus.ESCALATED,
+  ENUM.messagesStatus.ACTION_TAKEN,
+  ENUM.messagesStatus.USER_NOTIFIED,
+  ENUM.messagesStatus.AWAITING_RESPONSE,
+  ENUM.messagesStatus.CLOSED
+]);
 export const admins = pgTable('admins', {
   ...base,
   email: varchar('email', { length: 256 }).unique(),
@@ -115,7 +131,13 @@ export const messages = pgTable('messages', {
   time_stamp: timestamp('time_stamp'),
   status: message_status_enum('status')
 });
-
+export const reported_messages = pgTable('reported_messages', {
+  ...base,
+  message_id: uuid('message_id').references(() => messages.id, { onDelete: 'cascade' }),
+  reported_by: uuid('reported_by').references(() => users.id, { onDelete: 'cascade' }),
+  reason: text('reason'),
+  status: flag_status_enum('status')
+});
 export const user_activity = pgTable('user_activity', {
   id: uuid('id').primaryKey().defaultRandom(),
   user_id: uuid('user_id')

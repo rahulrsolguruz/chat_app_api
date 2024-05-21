@@ -95,6 +95,7 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
       }
 
       req.user = admin;
+      next();
     }
   } catch (error) {
     next(error);
