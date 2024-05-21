@@ -61,7 +61,8 @@ export const flag_status_enum = pgEnum('flag_status_enum', [
 export const admins = pgTable('admins', {
   ...base,
   email: varchar('email', { length: 256 }).unique(),
-  password: text('password').notNull()
+  password: text('password').notNull(),
+  role: text('role')
 });
 export const users = pgTable('users', {
   ...base,

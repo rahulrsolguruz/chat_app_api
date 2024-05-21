@@ -11,6 +11,8 @@ export const setupSocketHandlers = (io) => {
     oneToOneChatHandler(socket);
     userStatusHandler(socket);
     groupChatHandler(socket, io);
+    // admin
+
     socket.on(EVENTS.DISCONNECT, () => {
       logger.info(`User disconnected: ${socket.id}`);
     });

@@ -88,7 +88,7 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
     } else {
       const verifyToken = token.split(' ')[1];
 
-      const decodedData = jwt.verify(verifyToken, env.SECRET_KEY as string) as { id: string };
+      const decodedData = jwt.verify(verifyToken, env.SECRET_KEY as string) as { id: string; role: string };
       const [admin] = await db.select().from(admins).where(eq(admins.id, decodedData.id));
       if (!admin) {
         return next(new Error('Please login to access this route'));

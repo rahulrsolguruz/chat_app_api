@@ -37,5 +37,14 @@ export const EVENTS = {
     MEMBER_ADDED: 'member_added',
     MEMBER_REMOVED: 'member_removed',
     MESSAGE_DELETED: 'message_deleted'
+  },
+  ADMIN: {
+    USER_CREATED: 'user_created',
+    USER_UPDATED: 'user_updated',
+    USER_DELETED: 'user_deleted',
+    GROUP_CREATED: 'group_created',
+    GROUP_UPDATED: 'group_updated',
+    GROUP_MEMBER_ADDED: 'member_added',
+    GROUP_MEMBER_REMOVED: 'member_added'
   }
 };

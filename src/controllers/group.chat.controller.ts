@@ -5,6 +5,8 @@ import { group_chat_members, group_chats, group_messages, message_type_enum, use
 import response from '../utils/response';
 import { and, eq, like, or } from 'drizzle-orm';
 import ENUM from '../utils/enum';
+import { io } from '..';
+import { EVENTS } from '../sockets/events';
 export async function createGroupChat(req: Request, res: Response) {
   try {
     const group_admin = req.user.id;
@@ -17,13 +19,16 @@ export async function createGroupChat(req: Request, res: Response) {
     };
 
     const [result] = await db.insert(group_chats).values(newGroupChat).returning({
-      group_id: group_chats.id
+      group_id: group_chats.id,
+      group_name: group_chats.group_name,
+      group_picture_url: group_chats.group_picture_url,
+      group_admin: group_chats.group_admin
     });
 
     if (!result) {
       return response.failureResponse({ message: errorMessage.SOMETHING_WENT_WRONG, data: result }, res);
     }
-
+    io.emit(EVENTS.ADMIN.GROUP_CREATED, result);
     return response.successResponse({ message: successMessage.ADDED('Group Chat'), data: result }, res);
   } catch (error) {
     return response.failureResponse(error, res, 'group.controller', 'createGroupChat');
@@ -62,7 +67,7 @@ export async function updateGroupChat(req: Request, res: Response) {
     if (!updatedGroup) {
       return response.failureResponse({ message: errorMessage.SOMETHING_WENT_WRONG, data: updatedGroup }, res);
     }
-
+    io.emit(EVENTS.ADMIN.GROUP_UPDATED, updatedGroup);
     return response.successResponse({ message: successMessage.UPDATED('Group Chat'), data: updatedGroup }, res);
   } catch (error) {
     return response.failureResponse(error, res, 'group.controller', 'updateGroupChat');
@@ -146,16 +151,15 @@ export async function addMemberToGroupChat(req: Request, res: Response) {
     const user_id = req.user.id;
 
     // Get group chat ID from request parameters
-    const { id } = req.params;
+    const { group_id } = req.params;
 
     // Check if the user is the admin of the group chat
     const isAdmin = await db
-      .select('user_id')
+      .select()
       .from(group_chat_members)
-      .where(eq(group_chat_members.id, id))
+      .where(eq(group_chat_members.group_id, group_id))
       .andWhere(eq(group_chat_members.user_id, user_id))
-      .andWhere(eq(group_chat_members.role, ENUM.RoleType.ADMIN))
-      .first();
+      .andWhere(eq(group_chat_members.role, ENUM.RoleType.ADMIN));
 
     if (!isAdmin) {
       return response.failureResponse({ message: errorMessage.UNAUTHORIZED_ACCESS, data: {} }, res);
@@ -166,23 +170,22 @@ export async function addMemberToGroupChat(req: Request, res: Response) {
 
     // Check if the user to be added is already a member of the group chat
     const [isMember] = await db
-      .select('user_id')
+      .select()
       .from(group_chat_members)
-      .where(eq(group_chat_members.id, id))
-      .andWhere(eq(group_chat_members.user_id, member_id))
-      .first();
+      .where(eq(group_chat_members.group_id, group_id))
+      .andWhere(eq(group_chat_members.user_id, member_id));
 
     if (isMember) {
       return response.failureResponse({ message: errorMessage.EXIST('Member'), data: {} }, res);
     }
 
     // Add the user as a member to the group chat
-    await db.insert(group_chat_members).values({
+    const [result] = await db.insert(group_chat_members).values({
       user_id: member_id,
-      group_id: id,
+      group_id: group_id,
       role: ENUM.RoleType.MEMBER
     });
-
+    io.emit(EVENTS.ADMIN.GROUP_MEMBER_ADDED, result);
     return response.successResponse({ message: successMessage.ADDED('Member'), data: {} }, res);
   } catch (error) {
     return response.failureResponse(error, res, 'group.controller', 'addMemberToGroupChat');
@@ -202,8 +205,7 @@ export async function removeMemberFromGroupChat(req: Request, res: Response) {
       .from(group_chat_members)
       .where(eq(group_chat_members.id, group_id))
       .andWhere(eq(group_chat_members.user_id, admin_id))
-      .andWhere(eq(group_chat_members.role, ENUM.RoleType.ADMIN))
-      .first();
+      .andWhere(eq(group_chat_members.role, ENUM.RoleType.ADMIN));
 
     if (!isAdmin) {
       return response.failureResponse({ message: errorMessage.UNAUTHORIZED_ACCESS, data: {} }, res);
@@ -212,10 +214,12 @@ export async function removeMemberFromGroupChat(req: Request, res: Response) {
     const [deleteCount] = await db
       .delete()
       .from(group_chat_members)
-      .where(and(eq(group_chat_members.id, group_id), eq(group_chat_members.user_id, user_id)));
+      .where(and(eq(group_chat_members.id, group_id), eq(group_chat_members.user_id, user_id)))
+      .returning();
     if (!deleteCount) {
       return response.failureResponse({ message: errorMessage.SOMETHING_WENT_WRONG, data: {} }, res);
     }
+    io.emit(EVENTS.ADMIN.GROUP_MEMBER_REMOVED, deleteCount);
     return response.successResponse({ message: successMessage.REMOVED('Member'), data: {} }, res);
   } catch (error) {
     return response.failureResponse(error, res, 'group.controller', 'removeMemberFromGroupChat');

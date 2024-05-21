@@ -28,6 +28,9 @@ enum UserStatus {
   UNBANNED = 'unbanned'
 }
 enum ActivityType {
+  USER_CREATED = 'user_created',
+  USER_UPDATED = 'user_updated',
+  USER_DELETED = 'user_deleted',
   USER_CONNECTED = 'user_connected',
   USER_DISCONNECTED = 'user_disconnected',
   USER_JOINED_GROUP = 'user_joined_group',
@@ -42,7 +45,9 @@ enum ActivityType {
   USER_DELETED_MESSAGE = 'user_deleted_message',
   USER_ADDED_CONTACT = 'user_added_contact',
   USER_REMOVED_CONTACT = 'user_removed_contact',
-  USER_CREATED_GROUP = 'USER_CREATED_GROUP'
+  USER_CREATED_GROUP = 'USER_CREATED_GROUP',
+  GROUP_CREATED = 'group_created',
+  GROUP_UPDATED = 'group_updated'
 }
 enum TargetType {
   USER = 'user',

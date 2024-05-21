@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
 app.use('/api/v1', router);
 
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: '*'
   }

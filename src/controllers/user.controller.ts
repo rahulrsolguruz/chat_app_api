@@ -8,6 +8,8 @@ import { errorMessage, successMessage } from '../config/constant.config';
 import response from '../utils/response';
 import { users, iUser, otp } from '../model/schema';
 import { env } from '../config/env.config';
+import { io } from '..';
+import { EVENTS } from '../sockets/events';
 
 interface DecodedUser {
   id: string;
@@ -49,6 +51,8 @@ export async function register(req: Request, res: Response) {
     if (!result) {
       return response.failureResponse({ message: errorMessage.SOMETHING_WENT_WRONG, data: {} }, res);
     }
+    // Notify clients about the new user creation via socket.io
+    io.emit(EVENTS.ADMIN.USER_CREATED, result);
     return response.successResponse(
       {
         message: successMessage.USER_REGISTERED,
@@ -228,6 +232,7 @@ export async function updateProfile(req: Request, res: Response) {
       email: users.email,
       updated_at: users.updated_at
     });
+    io.emit(EVENTS.ADMIN.USER_UPDATED, result);
     return response.successResponse(
       {
         message: successMessage.UPDATED('User'),

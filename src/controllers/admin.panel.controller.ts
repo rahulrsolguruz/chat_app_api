@@ -47,7 +47,6 @@ export async function getAllUsers(req: Request, res: Response) {
     return response.failureResponse(error, res, 'admin.controller', 'getAllUsers');
   }
 }
-
 export async function getUserDetails(req: Request, res: Response) {
   try {
     const userId = req.params.userId;
