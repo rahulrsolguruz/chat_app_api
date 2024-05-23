@@ -5,6 +5,6 @@ import { authenticateUser } from '../middlewares/authenticate-user';
 
 const router = express.Router();
 
-router.post('/media', upload.single('file'), uploadMedia);
+router.post('/', authenticateUser, upload.single('file'), uploadMedia);
 router.delete('/media/:id', authenticateUser, deleteMedia);
 export default router;

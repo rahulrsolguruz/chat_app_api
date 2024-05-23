@@ -7,7 +7,7 @@ import { io } from '..';
 import { EVENTS } from '../sockets/events';
 
 export async function seedUsers(req: Request, res: Response) {
-  const numberOfUsers = parseInt(req.params.number, 10) || 10;
+  const numberOfUsers = parseInt(req.params.number, 10) || 1;
 
   const userPromises = Array.from({ length: numberOfUsers }).map(async () => {
     const hashedPassword = await bcrypt.hash('pass123', 10);
@@ -40,7 +40,7 @@ export async function seedUsers(req: Request, res: Response) {
 }
 
 export async function seedAdmins(req: Request, res: Response) {
-  const numberOfAdmins = parseInt(req.params.number, 10) || 5;
+  const numberOfAdmins = parseInt(req.params.number, 10) || 1;
 
   const adminPromises = Array.from({ length: numberOfAdmins }).map(async () => {
     const hashedPassword = await bcrypt.hash('admin123', 10);

@@ -139,7 +139,7 @@ export async function updateContact(req: Request, res: Response) {
 export async function deleteContact(req: Request, res: Response) {
   try {
     const user_id = req.user.id;
-    const { contact_id } = req.params;
+    const { contactId } = req.params;
 
     // Check if the contact exists for the user
     const [contact] = await db
@@ -147,7 +147,7 @@ export async function deleteContact(req: Request, res: Response) {
         contact_id: contacts.contact_id
       })
       .from(contacts)
-      .where(and(eq(contacts.user_id, user_id), eq(contacts.contact_id, contact_id)));
+      .where(and(eq(contacts.user_id, user_id), eq(contacts.contact_id, contactId)));
 
     if (!contact) {
       return response.failureResponse({ message: errorMessage.NOT_EXIST('Contact'), data: {} }, res);
@@ -157,7 +157,7 @@ export async function deleteContact(req: Request, res: Response) {
     const [deleteCount] = await db
       .update(contacts)
       .set({ deleted_at: new Date() })
-      .where(eq(contacts.contact_id, contact_id));
+      .where(eq(contacts.contact_id, contactId));
 
     if (!deleteCount) {
       return response.failureResponse({ message: errorMessage.SOMETHING_WENT_WRONG, data: {} }, res);
