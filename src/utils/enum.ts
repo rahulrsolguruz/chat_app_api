@@ -2,126 +2,83 @@ enum Status {
   ACTIVE = 'active',
   INACTIVE = 'inactive'
 }
-
-enum LogAction {
-  REGISTER = 'register',
-  LOG_IN = 'login',
-  LOG_OUT = 'logout',
-  DELETE_ACCOUNT = 'delete_account'
+enum MessageType {
+  TEXT = 'text',
+  IMAGE = 'image',
+  VIDEO = 'video',
+  VOICE = 'voice',
+  DOCUMENT = 'document',
+  EMOJI = 'emoji'
 }
 
-enum MonthlyTrip {
-  MIN = 'less_then_50',
-  MID1 = '50-100',
-  MID2 = '100-200',
-  MAX = '200+'
+enum MessageStatus {
+  SENT = 'sent',
+  DELIVERED = 'delivered',
+  READ = 'read',
+  UNREAD = 'unread'
 }
-
-enum DiscountType {
-  PERCENTAGE = 'percentage',
-  FIXED = 'fixed_amount'
+enum RoleType {
+  MEMBER = 'member',
+  ADMIN = 'admin'
 }
-
-enum QueryStatus {
-  OPEN = 'open',
-  IN_PROGRESS = 'in_progress',
+enum UserStatus {
+  ONLINE = 'online',
+  OFFLINE = 'offline',
+  BANNED = 'banned',
+  UNBANNED = 'unbanned'
+}
+enum ActivityType {
+  ADMIN_CONNECTED = 'admin_connected',
+  USER_CREATED = 'user_created',
+  USER_UPDATED = 'user_updated',
+  USER_DELETED = 'user_deleted',
+  USER_CONNECTED = 'user_connected',
+  USER_DISCONNECTED = 'user_disconnected',
+  USER_JOINED_GROUP = 'user_joined_group',
+  USER_UPDATED_GROUP = 'user_updated_group',
+  USER_DELETED_GROUP = 'user_deleted_group',
+  MEMBER_ADDED_IN_GROUP = 'member_added_in_group',
+  MEMBER_REMOVED_IN_GROUP = 'member_removed_in_group',
+  MEMBER_SEND_MESSAGE_IN_GROUP = 'member_send_message_in_group',
+  MEMBER_DELETED_MESSAGE_IN_GROUP = 'member_deleted_message_in_group',
+  USER_LEFT_GROUP = 'user_left_group',
+  USER_SENT_MESSAGE = 'user_sent_message',
+  USER_DELETED_MESSAGE = 'user_deleted_message',
+  USER_ADDED_CONTACT = 'user_added_contact',
+  USER_REMOVED_CONTACT = 'user_removed_contact',
+  USER_CREATED_GROUP = 'USER_CREATED_GROUP',
+  GROUP_CREATED = 'group_created',
+  GROUP_UPDATED = 'group_updated'
+}
+enum TargetType {
+  USER = 'user',
+  GROUP = 'group',
+  MESSAGE = 'message',
+  MEDIA = 'media',
+  SETTING = 'setting'
+}
+enum messagesStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  PENDING = 'pending',
+  UNDER_REVIEW = 'under_review',
+  RESOLVED = 'resolved',
+  DISMISSED = 'dismissed',
+  ESCALATED = 'escalated',
+  ACTION_TAKEN = 'action_taken',
+  USER_NOTIFIED = 'user_notified',
+  AWAITING_RESPONSE = 'awaiting_response',
   CLOSED = 'closed'
-}
-
-enum QueryType {
-  GENUINE = 'genuine',
-  FAKE = 'fake'
-}
-
-enum AddressType {
-  PICKUP = 'pickup',
-  DELIVERY = 'delivery'
-}
-
-enum FragilityLevel {
-  LOW = 'low',
-  MIDIUM = 'midium',
-  HIGH = 'high'
-}
-
-enum ShiftEnum {
-  DAY = 'day',
-  NIGHT = 'night',
-  BOTH = 'both'
-}
-
-enum OrederTypeEnum {
-  LOCAL = 'local',
-  OUTDOOR = 'outdoor',
-  BOTH = 'both'
-}
-
-enum BookingStatusEnum {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  INPROGRESS = 'in_progress',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
-}
-enum PaymentTypesEnum {
-  CASH = 'cash',
-  STRIPE = 'stripe',
-  RAZOR_PAY = 'razorpay'
-}
-
-enum ServiceTypeEnum {
-  TWO_WHEELER = '2 wheeler',
-  TRUCKS = 'trucks',
-  PACKERS_AND_MOVERS = 'packers and movers',
-  ALL_INDIA_PARCEL = 'all india parcel'
-}
-enum PaymentStatusEnum {
-  PENDING = 'pending',
-  COMPLETED = 'completed',
-  FAILED = 'failed'
-}
-enum NotificationStatusEnum {
-  SCHEDULED = 'scheduled',
-  PUBLISHED = 'published',
-  CANCELLED = 'cancelled',
-  DRAFT = 'draft'
-}
-enum vehicleTypeEnum {
-  TWO_WHEELER = '2 wheeler',
-  AUTO = 'E loader',
-  THREE_WHEELR = '3 wheeler',
-  TATA_ACE = 'Tata ace',
-  FOURTEEN_FT = 'Canter 14 ft',
-  EIGHT_FT = '8 ft',
-  BOLERO = '1.7 ton',
-  Tata_407 = 'tata 407 '
-}
-
-enum DriverOrderEnum {
-  ACCEPTED = 'Accepted',
-  ACCEPTED_BY_OTHER = 'Accepted By other',
-  IN_PROGRESS = 'In Progress',
-  DELIVERED = 'Delivered',
-  CANCELLED = 'Cancelled'
 }
 const ENUM = {
   Status,
-  LogAction,
-  MonthlyTrip,
-  DiscountType,
-  QueryStatus,
-  QueryType,
-  AddressType,
-  FragilityLevel,
-  ShiftEnum,
-  OrederTypeEnum,
-  BookingStatusEnum,
-  PaymentTypesEnum,
-  PaymentStatusEnum,
-  NotificationStatusEnum,
-  ServiceTypeEnum,
-  vehicleTypeEnum,
-  DriverOrderEnum
+  MessageType,
+  MessageStatus,
+  RoleType,
+  UserStatus,
+  ActivityType,
+  TargetType,
+  messagesStatus
 };
 
 export default ENUM;

@@ -1,0 +1,35 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\nikhil\\Desktop\\SOLGURUZ\\chat_app_api\\socketLogs\\.0528c94bc99e051ee3ed763e7f4d4fea183d7c82-audit.json",
+    "files": [
+        {
+            "date": 1716109230558,
+            "name": "C:\\Users\\nikhil\\Desktop\\SOLGURUZ\\chat_app_api\\socketLogs\\2024-05-19.log",
+            "hash": "d6d24d36a8b1de75abfa48d92c4e1ccb40063ea087c18f7435a404b7cc35a88f"
+        },
+        {
+            "date": 1716181206491,
+            "name": "C:\\Users\\nikhil\\Desktop\\SOLGURUZ\\chat_app_api\\socketLogs\\2024-05-20.log",
+            "hash": "9859be1a0f8c1b22a3e7f03bc3f339b93f74fab4cba78639bf3c883e246591a7"
+        },
+        {
+            "date": 1716230931134,
+            "name": "C:\\Users\\nikhil\\Desktop\\SOLGURUZ\\chat_app_api\\socketLogs\\2024-05-21.log",
+            "hash": "3b2d04705498749ab2399ad8f988f8ed998637ff075582d43071cb2327072a03"
+        },
+        {
+            "date": 1716316284433,
+            "name": "C:\\Users\\nikhil\\Desktop\\SOLGURUZ\\chat_app_api\\socketLogs\\2024-05-22.log",
+            "hash": "005d444af914eed9d10fb05fa7ba8315d2b7d71cfc5d3a8b80c746185e9011e4"
+        },
+        {
+            "date": 1716440029918,
+            "name": "C:\\Users\\nikhil\\Desktop\\SOLGURUZ\\chat_app_api\\socketLogs\\2024-05-23.log",
+            "hash": "4d27ec767583cedf615d9d22244d96408407da8a5a39eb39e0d58dd4ef787822"
+        }
+    ],
+    "hashType": "sha256"
+}

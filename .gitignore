@@ -45,7 +45,7 @@ package-lock.json/
 drizzle/
 temp/
 .vscode/
-
+socketLogs/
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
